@@ -40,6 +40,7 @@
 #include "MyGUI_ToolTipManager.h"
 #include "MyGUI_LayoutManager.h"
 
+#define BOTTOM_OFFSET 5
 namespace MyGUI
 {
 
@@ -611,7 +612,8 @@ namespace MyGUI
 		else if (mAlign.isBottom())
 		{
 			// двигаем по нижнему краю
-			coord.top = mCoord.top + (size.height - _oldsize.height);
+			//coord.top = mCoord.top + (size.height - _oldsize.height);
+			coord.top = (size.height - mCoord.height) - BOTTOM_OFFSET;
 			need_move = true;
 		}
 		else if (mAlign.isVCenter())

@@ -230,6 +230,9 @@ namespace MyGUI
 		EventPair<EventHandle_WidgetSizeT, EventHandle_ListPtrSizeT>
 			eventListChangeScroll;
 
+		EventPair<EventHandle_WidgetSizeT, EventHandle_ListPtrSizeT>
+			eventListItemClicked;
+
 		/*internal:*/
 		/** \internal @name Internal
 			Internal use methods.
@@ -261,6 +264,7 @@ namespace MyGUI
 
 		void notifyScrollChangePosition(ScrollBar* _sender, size_t _rel);
 		void notifyMousePressed(Widget* _sender, int _left, int _top, MouseButton _id);
+		void notifyMouseClick(Widget* _sender);
 		void notifyMouseDoubleClick(Widget* _sender);
 		void notifyMouseWheel(Widget* _sender, int _rel);
 		void notifyMouseSetFocus(Widget* _sender, Widget* _old);

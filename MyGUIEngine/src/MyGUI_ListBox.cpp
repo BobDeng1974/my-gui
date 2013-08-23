@@ -65,6 +65,7 @@ namespace MyGUI
 		if (mClient != nullptr)
 		{
 			mClient->eventMouseButtonPressed += newDelegate(this, &ListBox::notifyMousePressed);
+			//mClient->eventMouseButtonClick += newDelegate(this, &ListBox::notifyMouseClick);
 			setWidgetClient(mClient);
 		}
 
@@ -73,6 +74,7 @@ namespace MyGUI
 		{
 			mWidgetScroll->eventScrollChangePosition += newDelegate(this, &ListBox::notifyScrollChangePosition);
 			mWidgetScroll->eventMouseButtonPressed += newDelegate(this, &ListBox::notifyMousePressed);
+			//mWidgetScroll->eventMouseButtonClick += newDelegate(this, &ListBox::notifyMouseClick);
 			mWidgetScroll->setScrollPage((size_t)mHeightLine);
 			mWidgetScroll->setScrollViewPage((size_t)mHeightLine);
 		}
@@ -244,6 +246,39 @@ namespace MyGUI
 		_sendEventChangeScroll(_position);
 	}
 
+	void ListBox::notifyMouseClick(Widget* _sender)
+	{
+		if (_sender == mWidgetScroll)
+			return;
+
+		// если выделен клиент, то сбрасываем
+		if (_sender == _getClientWidget())
+		{
+			if (mIndexSelect != ITEM_NONE)
+			{
+				_selectIndex(mIndexSelect, false);
+				mIndexSelect = ITEM_NONE;
+				//eventListChangePosition(this, mIndexSelect);
+				eventListItemClicked(this, mIndexSelect);
+			}
+			//eventListMouseItemActivate(this, mIndexSelect);
+
+			// если не клиент, то просчитывам
+		}
+		// ячейка может быть скрыта
+		else if (_sender->getVisible())
+		{
+#if MYGUI_DEBUG_MODE == 1
+			_checkMapping("ListBox::notifyMouseClick");
+			MYGUI_ASSERT_RANGE(*_sender->_getInternalData<size_t>(), mWidgetLines.size(), "ListBox::notifyMouseClick");
+			MYGUI_ASSERT_RANGE(*_sender->_getInternalData<size_t>() + mTopIndex, mItemsInfo.size(), "ListBox::notifyMouseClick");
+#endif
+
+			size_t index = *_sender->_getInternalData<size_t>() + mTopIndex;
+			eventListItemClicked(this, index);
+		}
+		_resetContainer(true);
+	}
 	void ListBox::notifyMousePressed(Widget* _sender, int _left, int _top, MouseButton _id)
 	{
 		if (MouseButton::Left != _id)
@@ -372,6 +407,7 @@ namespace MyGUI
 				Button* line = widget->castType<Button>();
 				// подписываемся на всякие там события
 				line->eventMouseButtonPressed += newDelegate(this, &ListBox::notifyMousePressed);
+				line->eventMouseButtonClick += newDelegate(this, &ListBox::notifyMouseClick);
 				line->eventMouseButtonDoubleClick += newDelegate(this, &ListBox::notifyMouseDoubleClick);
 				line->eventMouseWheel += newDelegate(this, &ListBox::notifyMouseWheel);
 				line->eventMouseSetFocus += newDelegate(this, &ListBox::notifyMouseSetFocus);

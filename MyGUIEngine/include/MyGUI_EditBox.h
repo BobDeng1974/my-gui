@@ -34,6 +34,25 @@ namespace MyGUI
 
 	typedef delegates::CMultiDelegate1<EditBox*> EventHandle_EditPtr;
 
+	class Validator
+	{
+	public:
+		Validator() { }
+		virtual ~Validator() { }
+
+		virtual bool validate(const UString& _value) = 0;
+	protected:
+		UString allowedInput;
+	};
+	class IntValidator:public Validator
+	{
+		public:
+		IntValidator();
+		virtual ~IntValidator();
+
+		virtual bool validate(const UString& _value);
+	};
+
 	class MYGUI_EXPORT EditBox :
 		public TextBox,
 		public ScrollViewBase,
@@ -398,6 +417,8 @@ namespace MyGUI
 		size_t mMaxTextLength;
 
 		ISubWidgetText* mClientText;
+		Validator *mValidator;
+		bool mDontHaveValidator;
 	};
 
 } // namespace MyGUI

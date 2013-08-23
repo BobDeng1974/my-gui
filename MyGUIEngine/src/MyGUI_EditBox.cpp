@@ -46,6 +46,27 @@ namespace MyGUI
 	const std::string EDIT_CLIPBOARD_TYPE_TEXT = "Text";
 	const int EDIT_MOUSE_WHEEL = 50; // область для восприятия мыши за пределом эдита
 
+
+	IntValidator::IntValidator()
+                :Validator()
+	{
+		allowedInput = "0123456789";
+	}
+
+	IntValidator::~IntValidator()
+	{
+	}
+
+	bool IntValidator::validate(const UString& _value)
+	{
+		for (unsigned int i = 0; i < _value.size(); i++)
+		{
+			if (allowedInput.find_first_of(_value.at(i)) == UString::npos)
+				return false;
+		}
+		return true;
+	}
+
 	EditBox::EditBox() :
 		mIsPressed(false),
 		mIsFocus(false),
@@ -66,7 +87,9 @@ namespace MyGUI
 		mCharPassword('*'),
 		mOverflowToTheLeft(false),
 		mMaxTextLength(EDIT_DEFAULT_MAX_TEXT_LENGTH),
-		mClientText(nullptr)
+		mClientText(nullptr),
+		mValidator(nullptr),
+		mDontHaveValidator(false)
 	{
 		mChangeContentByResize = true;
 	}
@@ -1246,6 +1269,22 @@ namespace MyGUI
 			return;
 
 		if ((mOverflowToTheLeft == false) && (mTextLength == mMaxTextLength))
+			return;
+
+		if (!mValidator && !mDontHaveValidator)
+		{
+			std::string validatorValue = getUserString("Validator");
+			MYGUI_LOGGING(MYGUI_LOG_SECTION, Info, validatorValue);
+			if (!validatorValue.empty() && validatorValue == "Int")
+			{
+				mValidator = new IntValidator();
+			}else
+			{
+				mDontHaveValidator = true;
+			}
+		}
+
+		if (mValidator && !mValidator->validate(_text))
 			return;
 
 		// история изменений
